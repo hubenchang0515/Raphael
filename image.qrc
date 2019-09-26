@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>ClamAV.png</file>
+    </qresource>
+</RCC>

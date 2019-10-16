@@ -1,7 +1,6 @@
-import QtQuick 2.12
-import QtQuick.Window 2.12
-import QtQuick.Controls 2.12
-import QtQuick.Controls.Material 2.12
+import QtQuick 2.13
+import QtQuick.Window 2.13
+import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.12
 
 Window {
@@ -55,6 +54,7 @@ Window {
 
             id: clear
             text: qsTr("查杀")
+            window: mainWindow
         }
 
         RaphaelButton {
@@ -63,6 +63,10 @@ Window {
 
             id: clearAll
             text: qsTr("全盘查杀")
+            window: mainWindow
+            onClicked: {
+                ClamAV.detect("D:/");
+            }
         }
 
         RaphaelButton {
@@ -71,6 +75,7 @@ Window {
 
             id: update
             text: qsTr("更新病毒库")
+            window: mainWindow
         }
 
         RaphaelButton {
@@ -79,6 +84,7 @@ Window {
 
             id: log
             text: qsTr("查杀日志")
+            window: mainWindow
         }
 
         RaphaelButton {
@@ -87,6 +93,7 @@ Window {
 
             id: source
             text: qsTr("获取源码")
+            window: mainWindow
             onClicked: {
                 Qt.openUrlExternally("https://github.com/hubenchang0515/Raphael")
             }
@@ -98,6 +105,7 @@ Window {
 
             id: quit
             text: qsTr("退出")
+            window: mainWindow
             onClicked: {
                 Qt.quit()
             }

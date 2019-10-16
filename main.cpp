@@ -1,22 +1,22 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QMessageLogContext>
-#include <clamav/clamav.h>
+#include <QQmlContext>
+#include <QThread>
+#include "clamavthread.h"
 
 int main(int argc, char *argv[])
 {
-    cl_init(CL_INIT_DEFAULT);
-    struct cl_engine* clEngine = cl_engine_new();
-    if(clEngine == nullptr)
-    {
-        return 1;
-    }
-
-    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+//    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 
     QGuiApplication app(argc, argv);
 
     QQmlApplicationEngine engine;
+    ClamAVThread clamAVThread;
+
+    engine.rootContext()->setContextProperty("ClamAV", &clamAVThread);
+
+
     const QUrl url(QStringLiteral("qrc:/main.qml"));
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
                      &app, [url](QObject *obj, const QUrl &objUrl) {
@@ -25,5 +25,6 @@ int main(int argc, char *argv[])
     }, Qt::QueuedConnection);
     engine.load(url);
 
-    return app.exec() && cl_engine_free(clEngine);
+
+    return app.exec();
 }

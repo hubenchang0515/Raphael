@@ -1,5 +1,6 @@
-import QtQuick 2.12
-import QtQuick.Controls 2.12
+import QtQuick 2.13
+import QtQuick.Window 2.13
+import QtQuick.Controls 2.5
 
 Button {
     id: button
@@ -8,6 +9,7 @@ Button {
     highlighted: true
     font.bold: true
     font.family: "Tahoma"
+    property Window window
 
     MouseArea {
         id: movement
@@ -28,8 +30,8 @@ Button {
         }
 
         onPositionChanged: {
-            mainWindow.x += movement.mouseX - movement.pressX
-            mainWindow.y += movement.mouseY - movement.pressY
+            window.x += movement.mouseX - movement.pressX
+            window.y += movement.mouseY - movement.pressY
             movement.click = false
         }
 

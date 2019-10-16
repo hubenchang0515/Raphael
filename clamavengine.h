@@ -25,9 +25,11 @@ public slots:
     bool detect(const QFileInfo& file);
     bool detect(const QString& file);
 
+    void start(const QString& file);
+
 private:
     struct cl_engine* engine;
-    QQueue<QFileInfo> dirs;
+    bool working;
 
     bool detectFile(const QFileInfo& file);
     bool detectDir(const QFileInfo& directory);

@@ -13,102 +13,23 @@ Window {
            | Qt.WindowMinimizeButtonHint| Qt.Window;
     color: "Black"
 
-    Image {
-        z: -1
-        anchors.centerIn: parent
-        source: "ClamAV.png"
+    Loader {
+        id: pageLoader
+        anchors.fill: parent
+        sourceComponent: MainPage {
+            window: mainWindow
+        }
     }
 
-    MouseArea{
-        id: movement
-        anchors.fill: parent
-        property real pressX
-        property real pressY
+    Connections {
+        target: pageLoader.item
 
-        function press()
-        {
-            movement.pressX = movement.mouseX
-            movement.pressY = movement.mouseY
+        onToMainPage: {
+            pageLoader.setSource("MainPage.qml", {"window": mainWindow})
         }
 
-        function move()
-        {
-            mainWindow.x += movement.mouseX - movement.pressX
-            mainWindow.y += movement.mouseY - movement.pressY
-        }
-
-        onPressed: press()
-        onPositionChanged: move()
-    }
-
-    GridLayout {
-        anchors.fill: parent
-        anchors.margins: 5
-        rows: 2
-        columns: 3
-        opacity: 0.8
-
-        RaphaelButton {
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-
-            id: clear
-            text: qsTr("查杀")
-            window: mainWindow
-        }
-
-        RaphaelButton {
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-
-            id: clearAll
-            text: qsTr("全盘查杀")
-            window: mainWindow
-            onClicked: {
-                ClamAV.detect("D:/");
-            }
-        }
-
-        RaphaelButton {
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-
-            id: update
-            text: qsTr("更新病毒库")
-            window: mainWindow
-        }
-
-        RaphaelButton {
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-
-            id: log
-            text: qsTr("查杀日志")
-            window: mainWindow
-        }
-
-        RaphaelButton {
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-
-            id: source
-            text: qsTr("获取源码")
-            window: mainWindow
-            onClicked: {
-                Qt.openUrlExternally("https://github.com/hubenchang0515/Raphael")
-            }
-        }
-
-        RaphaelButton {
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-
-            id: quit
-            text: qsTr("退出")
-            window: mainWindow
-            onClicked: {
-                Qt.quit()
-            }
+        onToScanPage: {
+            pageLoader.setSource("ScanPage.qml", {"window": mainWindow})
         }
     }
 }

@@ -2,5 +2,8 @@
     <qresource prefix="/">
         <file>main.qml</file>
         <file>RaphaelButton.qml</file>
+        <file>ScanPage.qml</file>
+        <file>MainPage.qml</file>
+        <file>AbstractPage.qml</file>
     </qresource>
 </RCC>

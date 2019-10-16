@@ -105,6 +105,17 @@ bool ClamAVEngine::detect(const QString& file)
     return detect(QFileInfo(file));
 }
 
+void ClamAVEngine::start(const QString& path)
+{
+    //if(open())
+    {
+        working = true;
+        detect(path);
+    }
+}
+
+
+
 bool ClamAVEngine::detectFile(const QFileInfo& file)
 {
     const char* f = file.absoluteFilePath().toStdString().c_str();
@@ -118,16 +129,17 @@ bool ClamAVEngine::detectFile(const QFileInfo& file)
         CL_SCAN_MAIL_PARTIAL_MESSAGE,
         0,
     };
+    emit detecting(file.absoluteFilePath());
     if((retCode = cl_scanfile(f, &virname, nullptr, engine,
         &options)) == CL_VIRUS)
     {
-        qInfo() << file << " seems like to be " << virname;
+        //qInfo() << file << " seems like to be " << virname;
         emit detected(file.absoluteFilePath(), false, virname);
         return false;
     }
     else
     {
-        qInfo() << file << " is safe.";
+        //qInfo() << file << " is safe.";
         emit detected(file.absoluteFilePath(), true, nullptr);
         return true;
     }

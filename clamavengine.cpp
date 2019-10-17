@@ -9,7 +9,7 @@ ClamAVEngine::ClamAVEngine(QObject *parent) :
     engine(nullptr),
     isOpen(false)
 {
-    cl_init(CL_INIT_DEFAULT);
+
 }
 
 ClamAVEngine::~ClamAVEngine()

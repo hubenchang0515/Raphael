@@ -112,7 +112,6 @@ AbstractPage {
                 target: Virus
 
                 onCleanFinished: {
-                    title.text = state.text =qsTr("清理完毕")
                     toResultPage()
                 }
 

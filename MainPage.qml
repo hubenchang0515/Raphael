@@ -84,7 +84,11 @@ AbstractPage {
             text: qsTr("扫描日志")
             window: mainPage.window
             onClicked: {
-
+                Virus.append("D:/Downloads/eicar/eicar.com", "demo")
+                Virus.append("D:/Downloads/eicar/eicar.com.txt", "demo")
+                Virus.append("D:/Downloads/eicar/eicar_com.zip", "demo")
+                Virus.append("D:/Downloads/eicar/eicarcom2.zip", "demo")
+                toResultPage()
             }
         }
 
@@ -109,6 +113,7 @@ AbstractPage {
             window: mainPage.window
             onClicked: {
                 ClamAV.cancel()
+                Virus.stop()
                 Qt.quit()
             }
         }

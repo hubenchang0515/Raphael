@@ -16,6 +16,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         clamavengine.cpp \
         clamavthread.cpp \
+        filecleaner.cpp \
         main.cpp \
         virustablemodel.cpp
 
@@ -41,4 +42,5 @@ INCLUDEPATH += $$PWD
 HEADERS += \
     clamavengine.h \
     clamavthread.h \
+    filecleaner.h \
     virustablemodel.h

@@ -37,9 +37,10 @@ AbstractPage {
         CheckBox {
             property int row: -1
             property var select
+            opacity: 1
 
             onClicked: {
-                select(checkState == Qt.Checked)
+                select(checkState == Qt.Checked, row)
             }
         }
     }
@@ -107,6 +108,19 @@ AbstractPage {
                 elide: Text.ElideMiddle // 长度溢出时，中间显示省略号
             }
 
+            Connections {
+                target: Virus
+
+                onCleanFinished: {
+                    title.text = state.text =qsTr("清理完毕")
+                    toResultPage()
+                }
+
+                onRemove: function(file){
+                    state.text = qsTr("正在删除") + file
+                }
+            }
+
             Rectangle {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
@@ -161,8 +175,7 @@ AbstractPage {
                     window: resultPage.window
                     text: qsTr("删除")
                     onClicked: {
-                        Virus.remove()
-                        Virus.clear()
+                        Virus.clean()
                     }
                 }
 
@@ -174,6 +187,7 @@ AbstractPage {
 
                     onClicked: {
                         Virus.clear()
+                        Virus.stop()
                         toMainPage()
                     }
                 }

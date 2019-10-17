@@ -5,14 +5,20 @@
 VirusTableModel::VirusTableModel(QObject *parent) :
     QAbstractTableModel(parent),
     rows(0),
-    columns(3)
+    columns(3),
+    thread(new QThread(this)),
+    cleaner(new FileCleaner(nullptr))
 {
-
+    cleaner->moveToThread(thread);
+    thread->start();
+    connect(this, &VirusTableModel::remove, cleaner, &FileCleaner::remove);
+    connect(cleaner, &FileCleaner::removed, this, &VirusTableModel::removed);
 }
 
 int VirusTableModel::rowCount(const QModelIndex &parent) const
 {
     (void)(parent);
+    qDebug() << rows;
     return rows;
 }
 
@@ -42,8 +48,8 @@ QVariant VirusTableModel::data(const QModelIndex &index, int role) const
             switch(index.column())
             {
                 case 0: return QVariant();
-                case 1: return virus[index.row()];
-                case 2: return file[index.row()];
+                case 1: return viruses[index.row()];
+                case 2: return files[index.row()];
                 default: return QVariant();
             }
 
@@ -83,11 +89,13 @@ int VirusTableModel::count()
     return rows;
 }
 
-void VirusTableModel::select(bool selected, int row, int column)
+void VirusTableModel::select(bool selected, int row)
 {
-    if(column != 0 || row >= rows)
+    if(row >= rows)
+    {
+        emit cleanFinished();
         return;
-
+    }
     this->selected[row] = selected;
 }
 
@@ -102,20 +110,52 @@ void VirusTableModel::selectAll(bool selected)
 void VirusTableModel::append(const QString& file, const QString virus)
 {
     this->selected.append(true);
-    this->file.append(file);
-    this->virus.append(virus);
+    this->files.append(file);
+    this->viruses.append(virus);
     rows += 1;
 }
 
-void VirusTableModel::remove()
+void VirusTableModel::clean()
 {
+    for(index = 0; !selected[index]; index++);
+    if(index >= rows)
+        return;
 
+    emit remove(files[index]);
 }
 
 void VirusTableModel::clear()
 {
     rows = 0;
     selected.clear();
-    virus.clear();
-    file.clear();
+    viruses.clear();
+    files.clear();
+}
+
+void VirusTableModel::removed(const QString& file)
+{
+    (void)(file);
+    selected.removeAt(index);
+    files.removeAt(index);
+    viruses.removeAt(index);
+    rows -= 1;
+    for(; !selected[index]; index++);
+    if(index >= rows)
+    {
+        emit cleanFinished();
+        return;
+    }
+
+    if(thread->isRunning() == false)
+    {
+        thread->start();
+    }
+    emit remove(files[index]);
+}
+
+
+void VirusTableModel::stop()
+{
+    thread->terminate();
+    thread->wait();
 }

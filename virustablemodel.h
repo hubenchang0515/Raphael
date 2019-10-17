@@ -3,6 +3,8 @@
 
 #include <QObject>
 #include <QAbstractTableModel>
+#include <QThread>
+#include "filecleaner.h"
 
 class VirusTableModel : public QAbstractTableModel
 {
@@ -15,21 +17,29 @@ public:
     QHash<int, QByteArray> roleNames() const override;
 
 signals:
+    void remove(const QString& files);
+    void cleanFinished();
 
 public slots:
     int count();
-    void select(bool selected, int row, int column);
+    void select(bool selected, int row);
     void selectAll(bool selected);
-    void append(const QString& file, const QString virus);
-    void remove();
+    void append(const QString& files, const QString viruses);
+    void clean();
     void clear();
+    void removed(const QString& files);
+    void stop();
 
 private:
     int rows;
     int columns;
     QList<bool> selected;
-    QList<QString> virus;
-    QList<QString> file;
+    QList<QString> viruses;
+    QList<QString> files;
+
+    QThread* thread;
+    FileCleaner* cleaner;
+    int index;
 };
 
 #endif // VIRUSTABLEMODEL_H

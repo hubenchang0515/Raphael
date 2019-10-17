@@ -16,7 +16,6 @@ ClamAVEngine::~ClamAVEngine()
     if(engine != nullptr)
     {
         cl_engine_free(engine);
-        qDebug() << "~ClamAVEngine";
     }
 }
 
@@ -177,7 +176,7 @@ bool ClamAVEngine::detectFile(const QFileInfo& file)
     }
     else
     {
-        emit message(file.absoluteFilePath() + " : " + cl_strerror(retCode));
+        qDebug() << file.absoluteFilePath() + " : " + cl_strerror(retCode);
         return false;
     }
 }

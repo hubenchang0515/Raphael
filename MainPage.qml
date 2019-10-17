@@ -121,7 +121,7 @@ AbstractPage {
         onAccepted: {
             close()
             toScanPage()
-            ClamAV.start(folder);
+            ClamAV.start(fileUrl);
         }
     }
 }

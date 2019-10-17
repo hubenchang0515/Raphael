@@ -1,6 +1,7 @@
 import QtQuick 2.13
 import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.12
+import QtQuick.Dialogs 1.3
 
 AbstractPage {
     id: mainPage
@@ -45,8 +46,12 @@ AbstractPage {
             Layout.fillHeight: true
 
             id: clear
-            text: qsTr("查杀")
+            text: qsTr("扫描")
             window: mainPage.window
+
+            onClicked: {
+                selectDialog.open()
+            }
         }
 
         RaphaelButton {
@@ -54,7 +59,7 @@ AbstractPage {
             Layout.fillHeight: true
 
             id: clearAll
-            text: qsTr("全盘查杀")
+            text: qsTr("全局扫描")
             window: mainPage.window
             onClicked: {
                 toScanPage()
@@ -103,6 +108,21 @@ AbstractPage {
                 ClamAV.cancel()
                 Qt.quit()
             }
+        }
+    }
+
+    // 选择扫描目录的窗口
+    FileDialog {
+        id: selectDialog
+        title: qsTr("打开文件")
+        folder: shortcuts.desktop
+        selectFolder: true
+
+        onAccepted: {
+            // 关闭这个窗口
+            close()
+            toScanPage()
+            ClamAV.start(folder);
         }
     }
 }

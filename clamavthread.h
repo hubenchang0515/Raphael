@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QThread>
 #include <QTime>
+#include <QUrl>
 #include <clamavengine.h>
 
 struct DetectedMessage
@@ -32,7 +33,7 @@ signals:
     void sent(); // to move ListVoew to the bottom
 
 public slots:
-    void start(const QString& path="");
+    void start(const QUrl& path=QUrl(""));
     void cancel();
 
     /* *********************************************
@@ -43,6 +44,7 @@ public slots:
     void proxyDetecting(const QString& file);
     void proxyDetected(const QString& file, bool isSafe, const QString& virname);
     void proxyMessage(const QString& text);
+    void proxyFinished();
 
 private:
     ClamAVEngine* engine;

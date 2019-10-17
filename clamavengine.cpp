@@ -120,7 +120,7 @@ bool ClamAVEngine::detect(const QString& file)
 
 void ClamAVEngine::scan(const QString& path)
 {
-    if(open())
+    //if(open())
     {
         detect(path);
         emit finished();

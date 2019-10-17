@@ -14,15 +14,16 @@ ClamAVThread::ClamAVThread(QObject *parent) :
 
     connect(engine, &ClamAVEngine::opened, this, &ClamAVThread::opened);
     connect(engine, &ClamAVEngine::closed, this, &ClamAVThread::closed);
-    connect(engine, &ClamAVEngine::finished, this, &ClamAVThread::finished);
+    connect(engine, &ClamAVEngine::finished, this, &ClamAVThread::proxyFinished);
 
     connect(engine, &ClamAVEngine::detecting, this, &ClamAVThread::proxyDetecting);
     connect(engine, &ClamAVEngine::detected, this, &ClamAVThread::proxyDetected);
     connect(engine, &ClamAVEngine::message, this, &ClamAVThread::proxyMessage);
 }
 
-void ClamAVThread::start(const QString& path)
+void ClamAVThread::start(const QUrl& path)
 {
+    QString file = path.toLocalFile();
     if(thread->isRunning() == false)
     {
         thread->start();
@@ -32,7 +33,7 @@ void ClamAVThread::start(const QString& path)
         }
         else
         {
-            emit scan(path);
+            emit scan(file);
         }
     }
 }
@@ -106,7 +107,7 @@ void ClamAVThread::proxyMessage(const QString& text)
         {
             emit message(data);
         }
-        detectedBuffer.clear();
+        messageBuffer.clear();
         emit message(text);
         emit sent();
         time.restart();
@@ -115,4 +116,29 @@ void ClamAVThread::proxyMessage(const QString& text)
     {
         messageBuffer.append(text);
     }
+}
+
+
+void ClamAVThread::proxyFinished()
+{
+    if(messageBuffer.isEmpty() == false)
+    {
+        for(auto& data : messageBuffer)
+        {
+            emit message(data);
+        }
+        messageBuffer.clear();
+        emit sent();
+    }
+
+    if(detectedBuffer.isEmpty() == false)
+    {
+        for(auto& data : detectedBuffer)
+        {
+            emit detected(data.file, data.isSafe, data.virusName);
+        }
+        detectedBuffer.clear();
+        emit sent();
+    }
+    emit finished();
 }

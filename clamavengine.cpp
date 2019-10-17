@@ -9,7 +9,7 @@ ClamAVEngine::ClamAVEngine(QObject *parent) :
     engine(nullptr),
     isOpen(false)
 {
-
+    cl_init(CL_INIT_DEFAULT);
 }
 
 ClamAVEngine::~ClamAVEngine()
@@ -22,18 +22,21 @@ ClamAVEngine::~ClamAVEngine()
 
 bool ClamAVEngine::open()
 {
+    int retCode = CL_SUCCESS;
+
     if(isOpen)
     {
         return true;
     }
     else if(engine != nullptr)
     {
+        /* May break thread while load CVD */
         cl_engine_free(engine);
+        engine = nullptr;
     }
-    int retCode = CL_SUCCESS;
 
     /* Init */
-    if((retCode = cl_init(CL_INIT_DEFAULT)) != CL_SUCCESS)
+    else if((retCode = cl_init(CL_INIT_DEFAULT)) != CL_SUCCESS)
     {
         emit message(cl_strerror(retCode));
         return false;

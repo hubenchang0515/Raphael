@@ -31,5 +31,9 @@ Window {
         onToScanPage: {
             pageLoader.setSource("ScanPage.qml", {"window": mainWindow})
         }
+
+        onToResultPage: {
+            pageLoader.setSource("ResultPage.qml", {"window": mainWindow})
+        }
     }
 }

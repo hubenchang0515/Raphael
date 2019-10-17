@@ -113,6 +113,7 @@ AbstractPage {
 
         onFinished: {
             state.text = qsTr("扫描完毕")
+            toResultPage()
         }
 
         onDetecting: function(file){
@@ -129,6 +130,8 @@ AbstractPage {
             {
                 text = "<font color='red'>异常</font> : " + file
                 title.virus += 1
+                Virus.append(file, virus)
+                console.log(file, virus)
             }
             messageModel.append({"message": text})
         }
@@ -143,6 +146,7 @@ AbstractPage {
         }
 
         onAbandon: {
+            Virus.clear()
             toMainPage()
         }
     }

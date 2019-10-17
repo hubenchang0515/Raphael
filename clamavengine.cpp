@@ -1,6 +1,7 @@
 #include <QtDebug>
 #include <QDir>
 #include <QCoreApplication>
+#include <QThread>
 #include "clamavengine.h"
 
 ClamAVEngine::ClamAVEngine(QObject *parent) :
@@ -24,6 +25,10 @@ bool ClamAVEngine::open()
     if(isOpen)
     {
         return true;
+    }
+    else if(engine != nullptr)
+    {
+        cl_engine_free(engine);
     }
     int retCode = CL_SUCCESS;
 

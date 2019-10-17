@@ -16,7 +16,8 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         clamavengine.cpp \
         clamavthread.cpp \
-        main.cpp
+        main.cpp \
+        virustablemodel.cpp
 
 RESOURCES += qml.qrc \
     image.qrc
@@ -39,4 +40,5 @@ INCLUDEPATH += $$PWD
 
 HEADERS += \
     clamavengine.h \
-    clamavthread.h
+    clamavthread.h \
+    virustablemodel.h

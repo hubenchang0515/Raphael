@@ -24,17 +24,19 @@ ClamAVThread::ClamAVThread(QObject *parent) :
 void ClamAVThread::start(const QUrl& path)
 {
     QString file = path.toLocalFile();
+    qDebug() << "start to scan " + file;
     if(thread->isRunning() == false)
     {
         thread->start();
-        if(path.isEmpty())
-        {
-            emit globalScan();
-        }
-        else
-        {
-            emit scan(file);
-        }
+    }
+
+    if(path.isEmpty())
+    {
+        emit globalScan();
+    }
+    else
+    {
+        emit scan(file);
     }
 }
 
@@ -43,6 +45,7 @@ void ClamAVThread::cancel()
     thread->terminate();
     if(thread->wait())
     {
+        qDebug() << thread->isRunning();
         emit abandon();
     }
 }

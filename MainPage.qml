@@ -63,7 +63,7 @@ AbstractPage {
             window: mainPage.window
             onClicked: {
                 toScanPage()
-                ClamAV.start();
+                ClamAV.start()
             }
         }
 
@@ -83,6 +83,9 @@ AbstractPage {
             id: log
             text: qsTr("扫描日志")
             window: mainPage.window
+            onClicked: {
+
+            }
         }
 
         RaphaelButton {
@@ -121,7 +124,7 @@ AbstractPage {
         onAccepted: {
             close()
             toScanPage()
-            ClamAV.start(fileUrl);
+            ClamAV.start(fileUrl)
         }
     }
 }

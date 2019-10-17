@@ -30,13 +30,7 @@ Button {
         }
 
         onPositionChanged: {
-            if(window == null)
-            {
-                return
-            }
-
-            if(movement.mouseX - movement.pressX < 5 &&
-                    movement.mouseY - movement.pressY)
+            if(window === null)
             {
                 return
             }

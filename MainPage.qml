@@ -39,7 +39,7 @@ AbstractPage {
         anchors.margins: 5
         rows: 2
         columns: 3
-        opacity: 0.8
+        opacity: 0.6
 
         RaphaelButton {
             Layout.fillWidth: true

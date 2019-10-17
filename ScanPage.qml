@@ -34,7 +34,7 @@ AbstractPage {
 
     Rectangle {
         color: "#333333"
-        opacity: 0.8
+        opacity: 0.6
         anchors.margins: 5
         anchors.fill: parent
 

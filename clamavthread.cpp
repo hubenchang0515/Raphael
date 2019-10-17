@@ -94,7 +94,6 @@ void ClamAVThread::proxyDetected(const QString& file, bool isSafe, const QString
 
 void ClamAVThread::proxyMessage(const QString& text)
 {
-    qDebug() << text;
     static QTime time;
     if(time.isValid() == false)
     {

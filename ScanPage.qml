@@ -123,17 +123,18 @@ AbstractPage {
             var text
             if(isSafe)
             {
-                text = "<font color='green'>" + qsTr("安全 ") + "</font> : " +  file
+                text = "<font color='green'>正常</font> : " +  file
             }
             else
             {
-                text = "<font color='red'>" + qsTr(" 病毒(") + virus + ")</font> : " + file
+                text = "<font color='red'>异常</font> : " + file
                 title.virus += 1
             }
             messageModel.append({"message": text})
         }
 
         onMessage: function(text){
+            text = "<font color='orange'>消息</font> : " + text
             messageModel.append({"message": text})
         }
 

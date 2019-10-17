@@ -16,6 +16,7 @@ ClamAVEngine::~ClamAVEngine()
     if(engine != nullptr)
     {
         cl_engine_free(engine);
+        qDebug() << "~ClamAVEngine";
     }
 }
 
@@ -135,18 +136,23 @@ void ClamAVEngine::globalScan()
         for(auto& drive : QDir::drives())
         {
             detect(drive.absoluteFilePath());
-            emit finished();
         }
         #else
             scan("/");
         #endif
+        emit finished();
     }
 }
 
 
 bool ClamAVEngine::detectFile(const QFileInfo& file)
 {
-    const char* f = file.absoluteFilePath().toStdString().c_str();
+    #ifdef Q_OS_WIN32
+        const char* f = file.absoluteFilePath().replace('/', "\\").toStdString().c_str();
+    #else
+        const char* f = file.absoluteFilePath().toStdString().c_str();
+    #endif
+
     const char* virname = nullptr;
     int retCode = CL_SUCCESS;
 
@@ -164,10 +170,15 @@ bool ClamAVEngine::detectFile(const QFileInfo& file)
         emit detected(file.absoluteFilePath(), false, virname);
         return false;
     }
-    else
+    else if(retCode == CL_CLEAN)
     {
         emit detected(file.absoluteFilePath(), true, nullptr);
         return true;
+    }
+    else
+    {
+        emit message(file.absoluteFilePath() + " : " + cl_strerror(retCode));
+        return false;
     }
 }
 
@@ -178,7 +189,7 @@ bool ClamAVEngine::detectDir(const QFileInfo& directory)
     bool ret = true;
     for(auto& fileinfo : dir.entryInfoList(QDir::AllEntries | QDir::NoDotAndDotDot))
     {
-        ret = ret && detect(fileinfo);
+        ret = detect(fileinfo) && ret;
     }
 
     return ret;

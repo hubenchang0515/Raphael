@@ -81,7 +81,7 @@ AbstractPage {
             Layout.fillHeight: true
 
             id: log
-            text: qsTr("查杀日志")
+            text: qsTr("扫描日志")
             window: mainPage.window
         }
 
@@ -119,7 +119,6 @@ AbstractPage {
         selectFolder: true
 
         onAccepted: {
-            // 关闭这个窗口
             close()
             toScanPage()
             ClamAV.start(folder);

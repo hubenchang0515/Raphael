@@ -128,6 +128,7 @@ AbstractPage {
             else
             {
                 text = "<font color='red'>" + qsTr(" 病毒(") + virus + ")</font> : " + file
+                title.virus += 1
             }
             messageModel.append({"message": text})
         }
@@ -144,5 +145,4 @@ AbstractPage {
             toMainPage()
         }
     }
-
 }

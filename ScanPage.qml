@@ -69,36 +69,22 @@ AbstractPage {
                 color: "#222222"
 
                 ListView{
+                    id: listView
                     anchors.fill: parent
                     clip: true
 
                     model: ListModel{
-                        ListElement {
-                            file: "xxxxxx.xxx"
-                            safe: true
-                        }
-
-                        ListElement {
-                            file: "xxxxxxxxxxxxxxxxxxxx.xxx"
-                            safe: true
-                        }
-
-                        ListElement {
-                            file: "xxxxxx.xxx"
-                            safe: false
-                        }
+                        id: messageModel
                     }
 
-                    delegate:Row {
+                    delegate: Row {
+                        width: parent.width
                         spacing: 10
                         Text {
+                            width: parent.width
                             color: "white"
-                            text: file
-                        }
-
-                        Text {
-                            color: safe ? "green" : "red"
-                            text: safe ? qsTr("安全") : qsTr("危险")
+                            text: message
+                            elide: Text.ElideMiddle // 长度溢出时，中间显示省略号
                         }
                     }
                 }
@@ -121,8 +107,37 @@ AbstractPage {
 
     Connections {
         target: ClamAV
+        onOpened: {
+            state.text = qsTr("病毒数据库加载完毕")
+        }
+
+        onFinished: {
+            state.text = qsTr("扫描完毕")
+        }
+
         onDetecting: function(file){
             state.text = qsTr("正在扫描  ") + file
+        }
+
+        onDetected: function(file, isSafe, virus){
+            var text
+            if(isSafe)
+            {
+                text = "<font color='green'>" + qsTr("安全 ") + "</font> : " +  file
+            }
+            else
+            {
+                text = "<font color='red'>" + qsTr(" 病毒(") + virus + ")</font> : " + file
+            }
+            messageModel.append({"message": text})
+        }
+
+        onMessage: function(text){
+            messageModel.append({"message": text})
+        }
+
+        onSent: {
+            listView.positionViewAtIndex(listView.count - 1, ListView.Beginning)
         }
 
         onAbandon: {

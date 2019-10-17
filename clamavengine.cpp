@@ -5,7 +5,8 @@
 
 ClamAVEngine::ClamAVEngine(QObject *parent) :
     QObject(parent),
-    engine(nullptr)
+    engine(nullptr),
+    isOpen(false)
 {
 
 }
@@ -20,12 +21,16 @@ ClamAVEngine::~ClamAVEngine()
 
 bool ClamAVEngine::open()
 {
+    if(isOpen)
+    {
+        return true;
+    }
     int retCode = CL_SUCCESS;
 
     /* Init */
     if((retCode = cl_init(CL_INIT_DEFAULT)) != CL_SUCCESS)
     {
-        qCritical() << cl_strerror(retCode);
+        emit message(cl_strerror(retCode));
         return false;
     }
 
@@ -33,7 +38,7 @@ bool ClamAVEngine::open()
     struct cl_engine* engine = cl_engine_new();
     if(engine == nullptr)
     {
-        qCritical() << "Cannot create ClamAV engine.";
+        emit message("Cannot create ClamAV engine.");
         return false;
     }
 
@@ -48,25 +53,28 @@ bool ClamAVEngine::open()
         #endif
         if((retCode = cl_load(cvdFile.toStdString().c_str(), engine, &signatures, CL_DB_STDOPT)) != CL_SUCCESS)
         {
-            qCritical() << cl_strerror(retCode);
+            emit message(cl_strerror(retCode));
             cl_engine_free(engine);
             engine = nullptr;
             return false;
         }
-        qInfo() << file.fileName() << " : " << signatures << " signatures loaded.";
+        emit message(QString::asprintf("CVD %s : loaded %d signatures.",
+                                       file.fileName().toStdString().c_str(),
+                                       signatures));
     }
 
 
     /* Compile */
     if((retCode = cl_engine_compile(engine)) != CL_SUCCESS)
     {
-        qCritical() << cl_strerror(retCode);
+        emit message(cl_strerror(retCode));
         cl_engine_free(engine);
         engine = nullptr;
         return false;
     }
 
     emit opened();
+    isOpen = true;
     return true;
 }
 
@@ -77,7 +85,7 @@ bool ClamAVEngine::close()
     {
         cl_engine_free(engine);
     }
-
+    isOpen = false;
     emit closed();
     return true;
 }
@@ -93,9 +101,14 @@ bool ClamAVEngine::detect(const QFileInfo& file)
     {
         return detectDir(file);
     }
+    else if(file.isSymLink())
+    {
+        emit message(file.fileName() + " is SymLink.");
+        return false;
+    }
     else
     {
-        qCritical() << "Unsupported file type.";
+        emit message(file.fileName() + " is Unknown.");
         return false;
     }
 }
@@ -105,15 +118,30 @@ bool ClamAVEngine::detect(const QString& file)
     return detect(QFileInfo(file));
 }
 
-void ClamAVEngine::start(const QString& path)
+void ClamAVEngine::scan(const QString& path)
 {
-    //if(open())
+    if(open())
     {
-        working = true;
         detect(path);
+        emit finished();
     }
 }
 
+void ClamAVEngine::globalScan()
+{
+    //if(open())
+    {
+        #ifdef Q_OS_WIN32
+        for(auto& drive : QDir::drives())
+        {
+            detect(drive.absoluteFilePath());
+            emit finished();
+        }
+        #else
+            scan("/");
+        #endif
+    }
+}
 
 
 bool ClamAVEngine::detectFile(const QFileInfo& file)
@@ -133,13 +161,11 @@ bool ClamAVEngine::detectFile(const QFileInfo& file)
     if((retCode = cl_scanfile(f, &virname, nullptr, engine,
         &options)) == CL_VIRUS)
     {
-        //qInfo() << file << " seems like to be " << virname;
         emit detected(file.absoluteFilePath(), false, virname);
         return false;
     }
     else
     {
-        //qInfo() << file << " is safe.";
         emit detected(file.absoluteFilePath(), true, nullptr);
         return true;
     }

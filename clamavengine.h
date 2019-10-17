@@ -16,8 +16,10 @@ public:
 signals:
     void opened();
     void closed();
+    void finished();
     void detecting(const QString& file);
     void detected(const QString& file, bool isSafe, const QString& virname);
+    void message(const QString& text);
 
 public slots:
     bool open();
@@ -25,11 +27,12 @@ public slots:
     bool detect(const QFileInfo& file);
     bool detect(const QString& file);
 
-    void start(const QString& file);
+    void scan(const QString& file);
+    void globalScan();
 
 private:
     struct cl_engine* engine;
-    bool working;
+    bool isOpen;
 
     bool detectFile(const QFileInfo& file);
     bool detectDir(const QFileInfo& directory);

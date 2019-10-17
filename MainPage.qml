@@ -58,7 +58,7 @@ AbstractPage {
             window: mainPage.window
             onClicked: {
                 toScanPage()
-                ClamAV.start("C:/");
+                ClamAV.start();
             }
         }
 

@@ -78,8 +78,14 @@ bool ClamAVEngine::open()
         return false;
     }
 
+    /* set option */
+    memset(&options, 0, sizeof(struct cl_scan_options));
+    options.parse |= UINT32_MAX;
+    options.general |= CL_SCAN_GENERAL_HEURISTICS;
+
     emit opened();
     isOpen = true;
+    qDebug() << "opened";
     return true;
 }
 
@@ -151,24 +157,17 @@ void ClamAVEngine::globalScan()
 
 bool ClamAVEngine::detectFile(const QFileInfo& file)
 {
+    QString filepath = file.absoluteFilePath();
     #ifdef Q_OS_WIN32
-        const char* f = file.absoluteFilePath().replace('/', "\\").toStdString().c_str();
-    #else
-        const char* f = file.absoluteFilePath().toStdString().c_str();
+        filepath.replace('/', "\\");
     #endif
 
     const char* virname = nullptr;
     int retCode = CL_SUCCESS;
 
-    struct cl_scan_options options = {
-        CL_SCAN_GENERAL_ALLMATCHES,
-        CL_SCAN_PARSE_ARCHIVE,
-        CL_SCAN_GENERAL_HEURISTIC_PRECEDENCE,
-        CL_SCAN_MAIL_PARTIAL_MESSAGE,
-        0,
-    };
+
     emit detecting(file.absoluteFilePath());
-    if((retCode = cl_scanfile(f, &virname, nullptr, engine,
+    if((retCode = cl_scanfile(filepath.toStdString().c_str(), &virname, nullptr, engine,
         &options)) == CL_VIRUS)
     {
         emit detected(file.absoluteFilePath(), false, virname);
@@ -181,7 +180,7 @@ bool ClamAVEngine::detectFile(const QFileInfo& file)
     }
     else
     {
-        qDebug() << file.absoluteFilePath() + " : " + cl_strerror(retCode);
+        emit message(cl_strerror(retCode));
         return false;
     }
 }

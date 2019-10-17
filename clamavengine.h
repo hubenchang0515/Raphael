@@ -32,6 +32,7 @@ public slots:
 
 private:
     struct cl_engine* engine;
+    struct cl_scan_options options;
     bool isOpen;
 
     bool detectFile(const QFileInfo& file);

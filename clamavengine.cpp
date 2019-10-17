@@ -35,7 +35,7 @@ bool ClamAVEngine::open()
     }
 
     /* Create Engine */
-    struct cl_engine* engine = cl_engine_new();
+    engine = cl_engine_new();
     if(engine == nullptr)
     {
         emit message("Cannot create ClamAV engine.");
@@ -120,7 +120,7 @@ bool ClamAVEngine::detect(const QString& file)
 
 void ClamAVEngine::scan(const QString& path)
 {
-    //if(open())
+    if(open())
     {
         detect(path);
         emit finished();
@@ -129,7 +129,7 @@ void ClamAVEngine::scan(const QString& path)
 
 void ClamAVEngine::globalScan()
 {
-    //if(open())
+    if(open())
     {
         #ifdef Q_OS_WIN32
         for(auto& drive : QDir::drives())

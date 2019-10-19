@@ -35,5 +35,9 @@ Window {
         onToResultPage: {
             pageLoader.setSource("ResultPage.qml", {"window": mainWindow})
         }
+
+        onToUpdatePage: {
+            pageLoader.setSource("UpdatePage.qml", {"window": mainWindow})
+        }
     }
 }

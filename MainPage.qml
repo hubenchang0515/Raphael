@@ -74,6 +74,11 @@ AbstractPage {
             id: update
             text: qsTr("更新病毒库")
             window: mainPage.window
+
+            onClicked: {
+                toUpdatePage()
+                Updater.update()
+            }
         }
 
         RaphaelButton {
@@ -112,8 +117,6 @@ AbstractPage {
             text: qsTr("退出")
             window: mainPage.window
             onClicked: {
-                ClamAV.cancel()
-                Virus.stop()
                 Qt.quit()
             }
         }

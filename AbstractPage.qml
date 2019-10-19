@@ -7,4 +7,5 @@ Item {
     signal toMainPage()
     signal toScanPage()
     signal toResultPage()
+    signal toUpdatePage()
 }

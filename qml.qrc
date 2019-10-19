@@ -6,5 +6,6 @@
         <file>MainPage.qml</file>
         <file>AbstractPage.qml</file>
         <file>ResultPage.qml</file>
+        <file>UpdatePage.qml</file>
     </qresource>
 </RCC>

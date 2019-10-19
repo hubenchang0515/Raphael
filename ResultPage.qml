@@ -186,7 +186,6 @@ AbstractPage {
 
                     onClicked: {
                         Virus.clear()
-                        Virus.stop()
                         toMainPage()
                     }
                 }

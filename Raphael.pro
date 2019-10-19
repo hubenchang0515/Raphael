@@ -1,4 +1,4 @@
-QT += quick
+QT += quick network
 
 CONFIG += c++11
 
@@ -16,8 +16,10 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         clamavengine.cpp \
         clamavthread.cpp \
+        downloader.cpp \
         filecleaner.cpp \
         main.cpp \
+        updater.cpp \
         virustablemodel.cpp
 
 RESOURCES += qml.qrc \
@@ -42,5 +44,7 @@ INCLUDEPATH += $$PWD
 HEADERS += \
     clamavengine.h \
     clamavthread.h \
+    downloader.h \
     filecleaner.h \
+    updater.h \
     virustablemodel.h

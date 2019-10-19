@@ -5,6 +5,7 @@
 #include <QThread>
 #include "clamavthread.h"
 #include "virustablemodel.h"
+#include "updater.h"
 
 int main(int argc, char *argv[])
 {
@@ -16,9 +17,11 @@ int main(int argc, char *argv[])
     QQmlApplicationEngine engine;
     ClamAVThread clamAVThread;
     VirusTableModel virusTableModel;
+    Updater updater;
 
     engine.rootContext()->setContextProperty("ClamAV", &clamAVThread);
     engine.rootContext()->setContextProperty("Virus", &virusTableModel);
+    engine.rootContext()->setContextProperty("Updater", &updater);
 
 
     const QUrl url(QStringLiteral("qrc:/main.qml"));
@@ -28,6 +31,7 @@ int main(int argc, char *argv[])
             QCoreApplication::exit(-1);
     }, Qt::QueuedConnection);
     engine.load(url);
+
 
     return app.exec();
 }

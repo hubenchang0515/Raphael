@@ -1,12 +1,13 @@
 #include "clamavthread.h"
 #include <QtDebug>
 #include <QtGlobal>
-#include <QTime>
+#include <QTimer>
 
 ClamAVThread::ClamAVThread(QObject *parent) :
     QObject(parent),
     engine(new ClamAVEngine(nullptr)),
-    thread(new QThread(this))
+    thread(new QThread(this)),
+    timer(new QTimer(this))
 {
     engine->moveToThread(thread);
     connect(this, &ClamAVThread::scan, engine, &ClamAVEngine::scan);
@@ -19,6 +20,11 @@ ClamAVThread::ClamAVThread(QObject *parent) :
     connect(engine, &ClamAVEngine::detecting, this, &ClamAVThread::proxyDetecting);
     connect(engine, &ClamAVEngine::detected, this, &ClamAVThread::proxyDetected);
     connect(engine, &ClamAVEngine::message, this, &ClamAVThread::proxyMessage);
+
+    timer->setInterval(1000/60);
+    timer->setSingleShot(false);
+    connect(timer, &QTimer::timeout, this, &ClamAVThread::updateMessage);
+    timer->start();
 }
 
 void ClamAVThread::start(const QUrl& path)
@@ -53,94 +59,55 @@ void ClamAVThread::cancel()
 
 void ClamAVThread::proxyDetecting(const QString& file)
 {
-    static QTime time;
-    if(time.isValid() == false)
-    {
-        emit detecting(file);
-        time.start();
-    }
-    else if(time.elapsed() > 1000/60)
-    {
-        emit detecting(file);
-        time.restart();
-    }
+    current = file;
 }
 
 void ClamAVThread::proxyDetected(const QString& file, bool isSafe, const QString& virname)
 {
-    static QTime time;
-    if(time.isValid() == false)
-    {
-        emit detected(file, isSafe, virname);
-        time.start();
-    }
-    else if(time.elapsed() > 1000/60)
-    {
-        for(auto& data : detectedBuffer)
-        {
-            emit detected(data.file, data.isSafe, data.virusName);
-        }
-        detectedBuffer.clear();
-        emit detected(file, isSafe, virname);
-        emit sent();
-        time.restart();
-    }
-    else
-    {
-        DetectedMessage data;
-        data.file = file;
-        data.isSafe = isSafe;
-        data.virusName = virname;
-        detectedBuffer.append(data);
-    }
+    DetectedMessage data;
+    data.file = file;
+    data.isSafe = isSafe;
+    data.virusName = virname;
+    detectedBuffer.append(data);
 }
 
 void ClamAVThread::proxyMessage(const QString& text)
 {
-    static QTime time;
-    if(time.isValid() == false)
-    {
-        emit message(text);
-        time.start();
-    }
-    else if(time.elapsed() > 1000/60)
-    {
-        for(auto& data : messageBuffer)
-        {
-            emit message(data);
-        }
-        messageBuffer.clear();
-        emit message(text);
-        emit sent();
-        time.restart();
-    }
-    else
-    {
-        messageBuffer.append(text);
-    }
+    messageBuffer.append(text);
 }
 
 
 void ClamAVThread::proxyFinished()
 {
-    if(messageBuffer.isEmpty() == false)
+    emit finished();
+    thread->terminate();
+    thread->wait();
+}
+
+
+void ClamAVThread::updateMessage()
+{
+    if(current.isEmpty() == false)
     {
-        for(auto& data : messageBuffer)
-        {
-            emit message(data);
-        }
-        messageBuffer.clear();
-        emit sent();
+        emit detecting(current);
+        current.clear();
     }
 
-    if(detectedBuffer.isEmpty() == false)
+
+    if(messageBuffer.isEmpty() && detectedBuffer.isEmpty())
     {
-        for(auto& data : detectedBuffer)
-        {
-            emit detected(data.file, data.isSafe, data.virusName);
-        }
-        detectedBuffer.clear();
-        emit sent();
+        return;
     }
-    emit finished();
+    for(auto& data : messageBuffer)
+    {
+        emit message(data);
+    }
+    messageBuffer.clear();
+
+    for(auto& data : detectedBuffer)
+    {
+        emit detected(data.file, data.isSafe, data.virusName);
+    }
+    detectedBuffer.clear();
+    emit sent();
 }

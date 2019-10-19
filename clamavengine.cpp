@@ -7,9 +7,10 @@
 ClamAVEngine::ClamAVEngine(QObject *parent) :
     QObject(parent),
     engine(nullptr),
-    isOpen(false)
+    isOpen(false),
+    isInit(false)
 {
-
+    //cl_init(CL_INIT_DEFAULT);
 }
 
 ClamAVEngine::~ClamAVEngine()
@@ -28,29 +29,29 @@ bool ClamAVEngine::open()
     {
         return true;
     }
-    else if(engine != nullptr)
-    {
-        /* May break thread while load CVD */
-        cl_engine_free(engine);
-        engine = nullptr;
-    }
 
-    /* Init */
-    else if((retCode = cl_init(CL_INIT_DEFAULT)) != CL_SUCCESS)
+    emit message("Initializing." );
+    if(!isInit &&(retCode = cl_init(CL_INIT_DEFAULT)) != CL_SUCCESS)
     {
-        emit message(cl_strerror(retCode));
+        emit message(QString("<font color='red'>Fatal Error</font> : ") + cl_strerror(retCode));
         return false;
+    }
+    else
+    {
+        isInit = true;
     }
 
     /* Create Engine */
+    emit message("Creating engine." );
     engine = cl_engine_new();
     if(engine == nullptr)
     {
-        emit message("Cannot create ClamAV engine.");
+        emit message(QString("<font color='red'>Fatal Error</font> : ") + cl_strerror(retCode));
         return false;
     }
 
     /* Load Virus Database */
+    emit message("Loading virus database." );
     unsigned int signatures = 0;
     QDir cvdDir(qApp->applicationDirPath() + "/CVD");
     for(auto& file : cvdDir.entryInfoList(QDir::AllEntries | QDir::NoDotAndDotDot))
@@ -59,23 +60,27 @@ bool ClamAVEngine::open()
         #ifdef Q_OS_WIN32
             cvdFile.replace('/', "\\");
         #endif
+        emit message("Start load " + file.fileName());
         if((retCode = cl_load(cvdFile.toStdString().c_str(), engine, &signatures, CL_DB_STDOPT)) != CL_SUCCESS)
         {
-            emit message(cl_strerror(retCode));
+            emit message(QString::asprintf("<font color='red'>Fatal Error</font> : %s - %s.",
+                           file.fileName().toStdString().c_str(),
+                           cl_strerror(retCode)));
             cl_engine_free(engine);
             engine = nullptr;
             return false;
         }
-        emit message(QString::asprintf("CVD %s : loaded %d signatures.",
+        emit message(QString::asprintf("CVD %s : Loaded %d signatures.",
                                        file.fileName().toStdString().c_str(),
                                        signatures));
     }
 
 
     /* Compile */
+    emit message("Compiling engine." );
     if((retCode = cl_engine_compile(engine)) != CL_SUCCESS)
     {
-        emit message(cl_strerror(retCode));
+        emit message(QString("<font color='red'>Fatal Error</font> : ") + cl_strerror(retCode));
         cl_engine_free(engine);
         engine = nullptr;
         return false;

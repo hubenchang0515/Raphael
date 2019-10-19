@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QThread>
+#include <QTimer>
 #include <QTime>
 #include <QUrl>
 #include <clamavengine.h>
@@ -45,12 +46,15 @@ public slots:
     void proxyDetected(const QString& file, bool isSafe, const QString& virname);
     void proxyMessage(const QString& text);
     void proxyFinished();
+    void updateMessage();
 
 private:
     ClamAVEngine* engine;
     QThread* thread;
+    QTimer* timer;
     QStringList messageBuffer;
     QList<DetectedMessage> detectedBuffer;
+    QString current;
 };
 
 #endif // CLAMAVTHREAD_H

@@ -34,6 +34,7 @@ private:
     struct cl_engine* engine;
     struct cl_scan_options options;
     bool isOpen;
+    bool isInit;
 
     bool detectFile(const QFileInfo& file);
     bool detectDir(const QFileInfo& directory);

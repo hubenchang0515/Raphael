@@ -10,7 +10,6 @@ VirusTableModel::VirusTableModel(QObject *parent) :
     cleaner(new FileCleaner(nullptr))
 {
     cleaner->moveToThread(thread);
-    thread->start();
     connect(this, &VirusTableModel::remove, cleaner, &FileCleaner::remove);
     connect(cleaner, &FileCleaner::removed, this, &VirusTableModel::removed);
 }
@@ -18,7 +17,6 @@ VirusTableModel::VirusTableModel(QObject *parent) :
 int VirusTableModel::rowCount(const QModelIndex &parent) const
 {
     (void)(parent);
-    qDebug() << rows;
     return rows;
 }
 
@@ -121,6 +119,10 @@ void VirusTableModel::clean()
     if(index >= rows)
         return;
 
+    if(thread->isRunning() == false)
+    {
+        thread->start();
+    }
     emit remove(files[index]);
 }
 
@@ -143,13 +145,11 @@ void VirusTableModel::removed(const QString& file)
     if(index >= rows)
     {
         emit cleanFinished();
+        thread->terminate();
+        thread->wait();
         return;
     }
 
-    if(thread->isRunning() == false)
-    {
-        thread->start();
-    }
     emit remove(files[index]);
 }
 

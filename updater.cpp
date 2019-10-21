@@ -37,9 +37,12 @@ Updater::Updater(QObject *parent) :
     connect(daily, &Downloader::defeated, this, &Updater::dailyDefeated);
     connect(bytecode, &Downloader::defeated, this, &Updater::bytecodeDefeated);
 
-    connect(this, &Updater::cancel, main, &Downloader::cancel);
-    connect(this, &Updater::cancel, daily, &Downloader::cancel);
-    connect(this, &Updater::cancel, bytecode, &Downloader::cancel);
+    connect(this, &Updater::cancel, main, &Downloader::cancel,
+            Qt::ConnectionType::DirectConnection);
+    connect(this, &Updater::cancel, daily, &Downloader::cancel,
+            Qt::ConnectionType::DirectConnection);
+    connect(this, &Updater::cancel, bytecode, &Downloader::cancel,
+            Qt::ConnectionType::DirectConnection);
 }
 
 
@@ -72,7 +75,6 @@ void Updater::update()
 void Updater::stop()
 {
     emit cancel();
-    QThread::usleep(100000);
     thread->terminate();
     thread->wait();
 }

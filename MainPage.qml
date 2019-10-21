@@ -45,8 +45,20 @@ AbstractPage {
             Layout.fillWidth: true
             Layout.fillHeight: true
 
+            id: log
+            text: qsTr("检测文件")
+            window: mainPage.window
+            onClicked: {
+                selectFile.open()
+            }
+        }
+
+        RaphaelButton {
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+
             id: clear
-            text: qsTr("扫描")
+            text: qsTr("扫描目录")
             window: mainPage.window
 
             onClicked: {
@@ -85,22 +97,6 @@ AbstractPage {
             Layout.fillWidth: true
             Layout.fillHeight: true
 
-            id: log
-            text: qsTr("扫描日志")
-            window: mainPage.window
-            onClicked: {
-                Virus.append("D:/Downloads/eicar/eicar.com", "demo")
-                Virus.append("D:/Downloads/eicar/eicar.com.txt", "demo")
-                Virus.append("D:/Downloads/eicar/eicar_com.zip", "demo")
-                Virus.append("D:/Downloads/eicar/eicarcom2.zip", "demo")
-                toResultPage()
-            }
-        }
-
-        RaphaelButton {
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-
             id: source
             text: qsTr("获取源码")
             window: mainPage.window
@@ -124,8 +120,21 @@ AbstractPage {
 
     // 选择扫描目录的窗口
     FileDialog {
+        id: selectFile
+        title: qsTr("检测文件")
+        folder: shortcuts.desktop
+
+        onAccepted: {
+            close()
+            toScanPage()
+            ClamAV.start(fileUrl)
+        }
+    }
+
+    // 选择扫描目录的窗口
+    FileDialog {
         id: selectDialog
-        title: qsTr("打开文件")
+        title: qsTr("扫描目录")
         folder: shortcuts.desktop
         selectFolder: true
 

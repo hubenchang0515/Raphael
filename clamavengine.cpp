@@ -54,7 +54,14 @@ bool ClamAVEngine::open()
     emit message("Loading virus database." );
     unsigned int signatures = 0;
     QDir cvdDir(qApp->applicationDirPath() + "/CVD");
-    for(auto& file : cvdDir.entryInfoList(QDir::AllEntries | QDir::NoDotAndDotDot))
+    QFileInfoList cvdList = cvdDir.entryInfoList({"*.cvd"},
+                                                  QDir::AllEntries | QDir::NoDotAndDotDot);
+    if(cvdList.isEmpty())
+    {
+        emit message("<font color='red'>Fatal Error</font> : no CVD found.");
+        return false;
+    }
+    for(auto& file : cvdList)
     {
         QString cvdFile = file.absoluteFilePath();
         #ifdef Q_OS_WIN32

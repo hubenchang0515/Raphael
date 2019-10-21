@@ -1,6 +1,7 @@
 #include "updater.h"
 #include <QtGlobal>
 #include <QCoreApplication>
+#include <QDir>
 
 Updater::Updater(QObject *parent) :
     QObject(parent),
@@ -32,6 +33,10 @@ Updater::Updater(QObject *parent) :
     connect(daily, &Downloader::finished, this, &Updater::dailyFinished);
     connect(bytecode, &Downloader::finished, this, &Updater::bytecodeFinished);
 
+    connect(main, &Downloader::defeated, this, &Updater::mainDefeated);
+    connect(daily, &Downloader::defeated, this, &Updater::dailyDefeated);
+    connect(bytecode, &Downloader::defeated, this, &Updater::bytecodeDefeated);
+
     connect(this, &Updater::cancel, main, &Downloader::cancel);
     connect(this, &Updater::cancel, daily, &Downloader::cancel);
     connect(this, &Updater::cancel, bytecode, &Downloader::cancel);
@@ -49,10 +54,19 @@ void Updater::update()
     isDailyFinished = false;
     isBytecodeFinished = false;
 
-    QString dir = qApp->applicationDirPath() + "/CVD";
-    emit startMain(QUrl("http://database.clamav.net/main.cvd"), dir + "/main.cvd");
-    emit startDaily(QUrl("http://database.clamav.net/daily.cvd"), dir + "/daily.cvd");
-    emit startBytecode(QUrl("http://database.clamav.net/bytecode.cvd"), dir + "/bytecode.cvd");
+    QString dirPath = qApp->applicationDirPath() + "/CVD";
+    QDir dir(dirPath);
+    if(dir.exists() == false && dir.mkpath(dirPath))
+    {
+        emit mainDefeated(QNetworkReply::NoError);
+        emit dailyDefeated(QNetworkReply::NoError);
+        emit bytecodeDefeated(QNetworkReply::NoError);
+        qDebug() << dirPath << "not exists.";
+        return;
+    }
+    emit startMain(QUrl("http://database.clamav.net/main.cvd"), dirPath + "/main.cvd");
+    emit startDaily(QUrl("http://database.clamav.net/daily.cvd"), dirPath + "/daily.cvd");
+    emit startBytecode(QUrl("http://database.clamav.net/bytecode.cvd"), dirPath + "/bytecode.cvd");
 }
 
 void Updater::stop()

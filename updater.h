@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QThread>
+#include <QNetworkReply>
 #include <downloader.h>
 
 class Updater : public QObject
@@ -23,6 +24,10 @@ signals:
     void mainFinished();
     void dailyFinished();
     void bytecodeFinished();
+
+    void mainDefeated(QNetworkReply::NetworkError code);
+    void dailyDefeated(QNetworkReply::NetworkError code);
+    void bytecodeDefeated(QNetworkReply::NetworkError code);
 
     void startMain(QUrl, QString);
     void startDaily(QUrl, QString);

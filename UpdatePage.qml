@@ -48,6 +48,7 @@ AbstractPage {
                 Layout.fillHeight: true
 
                 Text {
+                    id: mainTitle
                     text: qsTr("main.cvd")
                     color: "white"
                     font.pixelSize: 32
@@ -87,6 +88,7 @@ AbstractPage {
 
             ColumnLayout {
                 Text {
+                    id: dailyTitle
                     text: qsTr("daily.cvd")
                     color: "white"
                     font.pixelSize: 32
@@ -126,6 +128,7 @@ AbstractPage {
 
             ColumnLayout {
                 Text {
+                    id: bytecodeTitle
                     text: qsTr("bytecode.cvd")
                     color: "white"
                     font.pixelSize: 32
@@ -209,6 +212,39 @@ AbstractPage {
         onBytecodeLength: function(value){
             bytecodeState.denominator = value
             bytecodeProgressBar.denominator = value
+        }
+
+        onMainFinished: {
+            mainTitle.color = "green"
+            mainState.color = "green"
+        }
+
+        onDailyFinished: {
+            dailyTitle.color = "green"
+            dailyState.color = "green"
+        }
+
+        onBytecodeFinished: {
+            bytecodeTitle.color = "green"
+            bytecodeState.color = "green"
+        }
+
+        onMainDefeated: function(value){
+            mainTitle.color = "red"
+            mainState.color = "red"
+            mainState.text = "QNetworkReply::NetworkError : " + value
+        }
+
+        onDailyDefeated: function(value){
+            dailyTitle.color = "red"
+            dailyState.color = "red"
+            dailyState.text = "QNetworkReply::NetworkError : " + value
+        }
+
+        onBytecodeDefeated: function(value){
+            bytecodeTitle.color = "red"
+            bytecodeState.color = "red"
+            bytecodeState.text = "QNetworkReply::NetworkError : " + value
         }
     }
 }
